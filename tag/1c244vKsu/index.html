@@ -9,7 +9,7 @@
 <meta name="description" content="我的博客">
 <meta name="theme-color" content="#000">
 <title>TickTock&#39;Blog</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1648099088539">
+<link rel="shortcut icon" href="/favicon.ico?v=1648105710457">
 <link rel="stylesheet" href="/media/css/gemini.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -169,7 +169,7 @@
     <div class="sidebar-item-box">
       <a href="/archives/">
         
-        <span class="site-item-stat-count">3</span>
+        <span class="site-item-stat-count">4</span>
         <span class="site-item-stat-name language" data-lan="article">文章</span>
       </a>
     </div>
@@ -223,6 +223,8 @@
           <small class="language" data-lan="tag">标签</small>
         </h2>
       </div>
+      
+      
       
       
       
@@ -514,6 +516,110 @@
       <hr>
     </div>
     <div class="result" id="result">
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://tickltock.github.io/post/8DXfwMpGg/"" data-c="
+          &lt;p&gt;由于众所周知的原因，国内网络无法正常安装yay，故写下此篇文章。&lt;br&gt;
+希望这篇文章为安装yay提供参考，避免踩坑。&lt;/p&gt;
+&lt;!-- more --&gt;
+&lt;h2 id=&#34;常规安装方法&#34;&gt;常规安装方法&lt;/h2&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;git clone https://aur.archlinux.org/yay
+cd yay
+makepkg -si
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;通常情况执行完上面所示命令即可安装成功，但是经常会遇到网络错误的情况，主要原因有如下两点&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;go语言的软件安装源被屏蔽&lt;/li&gt;
+&lt;li&gt;github访问受限&lt;br&gt;
+所以解决思路要么采取科学上网软件，或者采取我以下所说的方法。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;解决方案&#34;&gt;解决方案&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;go语言换源&lt;br&gt;
+本文采用Goproxy.cn源，官网有换源方法，这里也贴出来&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;换源&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;go env -w GO111MODULE=on
+go env -w GOPROXY=https://goproxy.cn,direct
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;使更换的源生效&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;临时生效&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;export GO111MODULE=on
+export GOPROXY=https://goproxy.cn
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;永久生效&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;echo &amp;quot;export GO111MODULE=on&amp;quot; &amp;gt;&amp;gt; ~/.profile
+echo &amp;quot;export GOPROXY=https://goproxy.cn&amp;quot; &amp;gt;&amp;gt; ~/.profile
+source ~/.profile
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;完成以上步骤以后，可以再次尝试&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;makepkg -si
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;若还存在网络问题可以继续往下看，修改hosts&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;修改hosts访问github&lt;br&gt;
+本文采用的gitee找到的github hosts&lt;br&gt;
+github hosts如下:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code&gt;# GitHub Host Start
+185.199.108.154              github.githubassets.com
+140.82.112.22                central.github.com
+185.199.108.133              desktop.githubusercontent.com
+185.199.108.153              assets-cdn.github.com
+185.199.108.133              camo.githubusercontent.com
+185.199.108.133              github.map.fastly.net
+199.232.69.194               github.global.ssl.fastly.net
+140.82.114.3                 gist.github.com
+185.199.108.153              github.io
+140.82.113.3                 github.com
+140.82.112.5                 api.github.com
+185.199.108.133              raw.githubusercontent.com
+185.199.108.133              user-images.githubusercontent.com
+185.199.108.133              favicons.githubusercontent.com
+185.199.108.133              avatars5.githubusercontent.com
+185.199.108.133              avatars4.githubusercontent.com
+185.199.108.133              avatars3.githubusercontent.com
+185.199.108.133              avatars2.githubusercontent.com
+185.199.108.133              avatars1.githubusercontent.com
+185.199.108.133              avatars0.githubusercontent.com
+185.199.108.133              avatars.githubusercontent.com
+140.82.112.10                codeload.github.com
+52.217.207.1                 github-cloud.s3.amazonaws.com
+52.216.78.4                  github-com.s3.amazonaws.com
+52.217.194.169               github-production-release-asset-2e65be.s3.amazonaws.com
+52.216.131.131               github-production-user-asset-6210df.s3.amazonaws.com
+52.216.28.204                github-production-repository-file-5c1aeb.s3.amazonaws.com
+185.199.108.153              githubstatus.com
+64.71.144.202                github.community
+185.199.108.133              media.githubusercontent.com
+​
+# Please Star : https://github.com/ineo6/hosts
+# Mirror Repo : https://gitee.com/ineo6/hosts
+# Update at: 2021-12-01 08:39:41
+​
+# GitHub Host End
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;修改hosts&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo vim /etc/hosts
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;将以上github host内容追加到/etc/hosts文件中&lt;br&gt;
+使更新的hosts立即生效&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo systemctl restart nscd
+&lt;/code&gt;&lt;/pre&gt;
+">yay安装失败的解决方案</a>
+      </div>
       
       <div class="item">
         <a class="result-title" style="opacity: 0;" href="https://tickltock.github.io/post/DgT6_5f8r/"" data-c="

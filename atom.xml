@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tickltock.github.io</id>
     <title>TickTock&apos;Blog</title>
-    <updated>2022-03-24T06:28:08.439Z</updated>
+    <updated>2022-03-24T07:16:26.619Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tickltock.github.io"/>
     <link rel="self" href="https://tickltock.github.io/atom.xml"/>
@@ -10,6 +10,116 @@
     <logo>https://tickltock.github.io/images/avatar.png</logo>
     <icon>https://tickltock.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, TickTock&apos;Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[yay安装失败的解决方案]]></title>
+        <id>https://tickltock.github.io/post/8DXfwMpGg/</id>
+        <link href="https://tickltock.github.io/post/8DXfwMpGg/">
+        </link>
+        <updated>2022-03-24T06:36:06.000Z</updated>
+        <summary type="html"><![CDATA[<p>由于众所周知的原因，国内网络无法正常安装yay，故写下此篇文章。<br>
+希望这篇文章为安装yay提供参考，避免踩坑。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>由于众所周知的原因，国内网络无法正常安装yay，故写下此篇文章。<br>
+希望这篇文章为安装yay提供参考，避免踩坑。</p>
+<!-- more -->
+<h2 id="常规安装方法">常规安装方法</h2>
+<pre><code class="language-shell">git clone https://aur.archlinux.org/yay
+cd yay
+makepkg -si
+</code></pre>
+<p>通常情况执行完上面所示命令即可安装成功，但是经常会遇到网络错误的情况，主要原因有如下两点</p>
+<ul>
+<li>go语言的软件安装源被屏蔽</li>
+<li>github访问受限<br>
+所以解决思路要么采取科学上网软件，或者采取我以下所说的方法。</li>
+</ul>
+<h2 id="解决方案">解决方案</h2>
+<ol>
+<li>
+<p>go语言换源<br>
+本文采用Goproxy.cn源，官网有换源方法，这里也贴出来</p>
+<ol>
+<li>换源</li>
+</ol>
+<pre><code class="language-shell">go env -w GO111MODULE=on
+go env -w GOPROXY=https://goproxy.cn,direct
+</code></pre>
+<ol start="2">
+<li>
+<p>使更换的源生效</p>
+<ul>
+<li>临时生效</li>
+</ul>
+<pre><code class="language-shell">export GO111MODULE=on
+export GOPROXY=https://goproxy.cn
+</code></pre>
+<ul>
+<li>永久生效</li>
+</ul>
+<pre><code class="language-shell">echo &quot;export GO111MODULE=on&quot; &gt;&gt; ~/.profile
+echo &quot;export GOPROXY=https://goproxy.cn&quot; &gt;&gt; ~/.profile
+source ~/.profile
+</code></pre>
+</li>
+</ol>
+</li>
+</ol>
+<p>完成以上步骤以后，可以再次尝试</p>
+<pre><code class="language-shell">makepkg -si
+</code></pre>
+<p>若还存在网络问题可以继续往下看，修改hosts</p>
+<ol>
+<li>修改hosts访问github<br>
+本文采用的gitee找到的github hosts<br>
+github hosts如下:</li>
+</ol>
+<pre><code># GitHub Host Start
+185.199.108.154              github.githubassets.com
+140.82.112.22                central.github.com
+185.199.108.133              desktop.githubusercontent.com
+185.199.108.153              assets-cdn.github.com
+185.199.108.133              camo.githubusercontent.com
+185.199.108.133              github.map.fastly.net
+199.232.69.194               github.global.ssl.fastly.net
+140.82.114.3                 gist.github.com
+185.199.108.153              github.io
+140.82.113.3                 github.com
+140.82.112.5                 api.github.com
+185.199.108.133              raw.githubusercontent.com
+185.199.108.133              user-images.githubusercontent.com
+185.199.108.133              favicons.githubusercontent.com
+185.199.108.133              avatars5.githubusercontent.com
+185.199.108.133              avatars4.githubusercontent.com
+185.199.108.133              avatars3.githubusercontent.com
+185.199.108.133              avatars2.githubusercontent.com
+185.199.108.133              avatars1.githubusercontent.com
+185.199.108.133              avatars0.githubusercontent.com
+185.199.108.133              avatars.githubusercontent.com
+140.82.112.10                codeload.github.com
+52.217.207.1                 github-cloud.s3.amazonaws.com
+52.216.78.4                  github-com.s3.amazonaws.com
+52.217.194.169               github-production-release-asset-2e65be.s3.amazonaws.com
+52.216.131.131               github-production-user-asset-6210df.s3.amazonaws.com
+52.216.28.204                github-production-repository-file-5c1aeb.s3.amazonaws.com
+185.199.108.153              githubstatus.com
+64.71.144.202                github.community
+185.199.108.133              media.githubusercontent.com
+​
+# Please Star : https://github.com/ineo6/hosts
+# Mirror Repo : https://gitee.com/ineo6/hosts
+# Update at: 2021-12-01 08:39:41
+​
+# GitHub Host End
+</code></pre>
+<p>修改hosts</p>
+<pre><code class="language-shell">$ sudo vim /etc/hosts
+</code></pre>
+<p>将以上github host内容追加到/etc/hosts文件中<br>
+使更新的hosts立即生效</p>
+<pre><code class="language-shell">$ sudo systemctl restart nscd
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[SAS总结]]></title>
         <id>https://tickltock.github.io/post/DgT6_5f8r/</id>
