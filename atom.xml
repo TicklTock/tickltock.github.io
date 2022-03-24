@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tickltock.github.io</id>
     <title>TickTock&apos;Blog</title>
-    <updated>2022-03-24T07:18:01.891Z</updated>
+    <updated>2022-03-24T07:19:02.540Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tickltock.github.io"/>
     <link rel="self" href="https://tickltock.github.io/atom.xml"/>
@@ -112,11 +112,11 @@ github hosts如下:</li>
 # GitHub Host End
 </code></pre>
 <p>修改hosts</p>
-<pre><code class="language-shell">$ sudo vim /etc/hosts
+<pre><code class="language-shell">sudo vim /etc/hosts
 </code></pre>
 <p>将以上github host内容追加到/etc/hosts文件中<br>
 使更新的hosts立即生效</p>
-<pre><code class="language-shell">$ sudo systemctl restart nscd
+<pre><code class="language-shell">sudo systemctl restart nscd
 </code></pre>
 ]]></content>
     </entry>
