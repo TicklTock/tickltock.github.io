@@ -9,7 +9,7 @@
 <meta name="description" content="我的博客">
 <meta name="theme-color" content="#000">
 <title>TickTock&#39;Blog</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1648632339623">
+<link rel="shortcut icon" href="/favicon.ico?v=1649727507436">
 <link rel="stylesheet" href="/media/css/gemini.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -187,13 +187,13 @@
     <div class="sidebar-item-box">
       <a href="/archives/">
         
-        <span class="site-item-stat-count">4</span>
+        <span class="site-item-stat-count">5</span>
         <span class="site-item-stat-name language" data-lan="article">文章</span>
       </a>
     </div>
     <div class="sidebar-item-box">
       <a href="/tags/">
-        <span class="site-item-stat-count">4</span>
+        <span class="site-item-stat-count">5</span>
         <span class="site-item-stat-name language" data-lan="tag">标签</span>
       </a>
     </div>
@@ -239,6 +239,10 @@
           <small class="language" data-lan="tag">标签</small>
         </h2>
       </div>
+      
+      
+      
+      
       
       
       
@@ -534,6 +538,155 @@
       <hr>
     </div>
     <div class="result" id="result">
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://blog.ticktock.vip/post/c8xf3OPgV/"" data-c="
+          &lt;p&gt;写在开头:由于需要爬取网上的一些数据，并且需要请求很多个URL，但requests库是一个同步库，因此采用aiohttp实现异步爬取数据&lt;/p&gt;
+&lt;!-- more --&gt;
+&lt;h2 id=&#34;需求&#34;&gt;需求&lt;/h2&gt;
+&lt;p&gt;爬取数据并得到想要的结果，并将结果输出为excel文档&lt;/p&gt;
+&lt;h2 id=&#34;基本情况&#34;&gt;基本情况&lt;/h2&gt;
+&lt;p&gt;通过浏览器开发者模式查看可以了解到网站是通过API得到json数据包从而渲染到网页，因此不需要使用lxml等解析网页的Python包，只需要通过网页请求得到对应的json数据包即可。&lt;/p&gt;
+&lt;p&gt;首先我得到了一个汇总的json(&lt;code&gt;SOC.json&lt;/code&gt;)，这个json记录了每个子节点所对应的ID。&lt;/p&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;1&#34;&gt;&lt;img src=&#34;https://blog.ticktock.vip/post-images/1649727019424.png&#34; alt=&#34;SOC.json&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;p&gt;而获取子节点的json所需要的URL正好需要子节点ID作为参数拼接，子节点json如图所示。&lt;/p&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;2&#34;&gt;&lt;img src=&#34;https://blog.ticktock.vip/post-images/1649727073503.png&#34; alt=&#34;090a0a10-c969-11e9-98de-acde48001122.json&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;p&gt;子节点json记录了我所需要的所有信息，因此获取所有的子节点json即可。&lt;/p&gt;
+&lt;h2 id=&#34;编程思路&#34;&gt;编程思路&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;直接请求URL以获得&lt;code&gt;SOC.json&lt;/code&gt;文件&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;读取&lt;code&gt;SOC.json&lt;/code&gt;文件获取所有的子节点ID&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;由得到子节点ID拼接为URL，请求得到的URL获取子节点json&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;读取所有json文件并输出到EXCEL文件&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;相关代码&#34;&gt;相关代码&lt;/h2&gt;
+&lt;p&gt;获取json的代码如下，相关网址已省略。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;spider.py&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;
+import json,requests,aiohttp,asyncio,os,random
+
+
+SOC_URL = &amp;quot;https://SOC_URL&amp;quot;
+TERM_URL = &amp;quot;https://TERM_URL/&amp;quot;
+
+class Spider(object):
+    
+    headers = {
+        &#39;User-Agent&#39;: &#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36 Edg/100.0.1185.29&#39;
+    }
+    loop = asyncio.get_event_loop()
+    
+    # 设定异步延迟(s),防止请求过快获取不到数据
+    delay = {
+        &#39;min&#39;: 2,
+        &#39;max&#39;: 6
+    }
+    
+    
+    def __init__(self) -&amp;gt; None:
+        pass
+    
+    async def async_requests(self,url):
+        &amp;quot;&amp;quot;&amp;quot;
+        异步请求函数
+        &amp;quot;&amp;quot;&amp;quot;
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(url=url, headers=self.headers) as response:
+                if response.status == 200:
+                    print(response)
+                    asyncio.sleep(random.uniform(self.delay[&#39;min&#39;],self.delay[&#39;max&#39;])*1000)
+                    term_json = await response.json()
+                    
+                    term_id = term_json[&#39;data&#39;][&#39;id&#39;]
+                    print(term_id)
+                    # 保存json文件
+                    with open(&#39;assets/{}.json&#39;.format(term_id),&#39;w+&#39;) as f:
+                            f.write(json.dumps(term_json))
+    
+    def getTerm(self):
+        with open(&#39;assets/soc.json&#39;,&#39;r&#39;) as f:
+            self.SOC_json = json.load(f)
+        n = 0
+        task = None
+        for SOC in self.SOC_json[&amp;quot;data&amp;quot;]:
+            for Term in SOC[&#39;children&#39;]:
+                url = TERM_URL + Term[&#39;id&#39;]
+                n=n+1
+                print(&#39;第{}个正在进行...&#39;.format(n))
+                if &amp;quot;{}.json&amp;quot;.format(Term[&#39;id&#39;]) not in os.listdir(&#39;assets&#39;):
+                    task = asyncio.gather(self.async_requests(url))
+        if task:
+            self.loop.run_until_complete(task)
+        self.loop.close()
+    
+    def getSOC(self):
+        response:requests.Response = requests.get(SOC_URL,headers=self.headers)
+        if response.status_code==200:
+            SOC_json = response.json()
+            with open(&#39;assets/soc.json&#39;,&#39;w+&#39;) as f:
+                f.write(json.dumps(SOC_json))
+            print(SOC_json)
+            
+    def run(self):
+        self.getSOC()
+        self.getTerm()
+        
+            
+if __name__ == &#39;__main__&#39;:
+    spider = Spider()
+    spider.run()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;输出excel文件的相关代码&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;toexcel.py&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;
+import os,json
+import pandas as pd
+
+
+os.listdir(&#39;assets&#39;)
+df = pd.DataFrame(columns=[&#39;MedDRA Code&#39;,&#39;SOC&#39;,&#39;TERM&#39;,&#39;Grade 1&#39;,&#39;Grade 2&#39;,&#39;Grade 3&#39;,&#39;Grade 4&#39;,&#39;Grade 5&#39;,&#39;Definition&#39;])
+
+with open(&#39;assets/soc.json&#39;,&#39;r&#39;) as f:
+    soc_json = json.load(f)
+for soc_node in soc_json[&amp;quot;data&amp;quot;]:
+    for term_node in soc_node[&#39;children&#39;]:
+        term_id = term_node[&#39;id&#39;]
+        with open(&#39;assets/{}.json&#39;.format(term_id),&#39;r&#39;) as f:
+            term_json = json.load(f)
+            code = term_json[&#39;data&#39;][&#39;meddraCode&#39;]
+            soc = soc_node[&#39;meddraName&#39;]
+            term = term_json[&#39;data&#39;][&#39;meddraName&#39;]
+            grade1 = term_json[&#39;data&#39;][&#39;grade1&#39;]
+            grade2 = term_json[&#39;data&#39;][&#39;grade2&#39;]
+            grade3 = term_json[&#39;data&#39;][&#39;grade3&#39;]
+            grade4 = term_json[&#39;data&#39;][&#39;grade4&#39;]
+            grade5 = term_json[&#39;data&#39;][&#39;grade5&#39;]
+            definition = term_json[&#39;data&#39;][&#39;definition&#39;]
+            onedata = {
+                &#39;MedDRA Code&#39;:code,
+                &#39;SOC&#39;:soc,
+                &#39;TERM&#39;:term,
+                &#39;Grade 1&#39;:grade1,
+                &#39;Grade 2&#39;:grade2,
+                &#39;Grade 3&#39;:grade3,
+                &#39;Grade 4&#39;:grade4,
+                &#39;Grade 5&#39;:grade5,
+                &#39;Definition&#39;:definition
+            }
+            df = df.append(onedata,ignore_index=True)
+df.to_excel(&#39;CTCAE5.0.xlsx&#39;,index=False)
+
+&lt;/code&gt;&lt;/pre&gt;
+">aiohttp异步爬虫案例</a>
+      </div>
       
       <div class="item">
         <a class="result-title" style="opacity: 0;" href="https://blog.ticktock.vip/post/8DXfwMpGg/"" data-c="

@@ -8,7 +8,7 @@
 <meta name="keywords" content="TickTock个人博客">
 <meta name="description" content="我的博客">
 <meta name="theme-color" content="#000">
-<title>SAS总结 | TickTock&#39;Blog</title>
+<title>aiohttp异步爬虫案例 | TickTock&#39;Blog</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1649727507436">
 <link rel="stylesheet" href="/media/css/gemini.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
@@ -41,8 +41,8 @@
 
 
 
-  <meta name="description" content="SAS总结" />
-  <meta name="keywords" content="SAS" />
+  <meta name="description" content="aiohttp异步爬虫案例" />
+  <meta name="keywords" content="Python" />
 </head>
 
 <body>
@@ -239,7 +239,10 @@
     <ul class="markdownIt-TOC">
 <li>
 <ul>
-<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+<li><a href="#%E9%9C%80%E6%B1%82">需求</a></li>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E6%83%85%E5%86%B5">基本情况</a></li>
+<li><a href="#%E7%BC%96%E7%A8%8B%E6%80%9D%E8%B7%AF">编程思路</a></li>
+<li><a href="#%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81">相关代码</a></li>
 </ul>
 </li>
 </ul>
@@ -507,14 +510,14 @@
           <div class="section bg-color post post-page">
             <section class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://blog.ticktock.vip/post/DgT6_5f8r/"> SAS总结 </a>
+    <a class="post-title-link" href="https://blog.ticktock.vip/post/c8xf3OPgV/"> aiohttp异步爬虫案例 </a>
   </h1>
   <div class="post-meta">
     
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span class="language" data-lan="publish">发布于</span>
-      <span class="publish-time" data-t="2022-03-24 08:55:36">2022-03-24</span>
+      <span class="publish-time" data-t="2022-04-12 09:29:05">2022-04-12</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
@@ -522,8 +525,8 @@
       <i class="fa fa-folder-o"></i>
       <span class="pc-show language" data-lan="category-in">标签:</span>
        
-      <a href="https://blog.ticktock.vip/tag/1c244vKsu/">
-        <span>SAS</span>
+      <a href="https://blog.ticktock.vip/tag/B2Vp3EAZv/">
+        <span>Python</span>
       </a>
        
     </span>
@@ -532,7 +535,7 @@
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
       <span
-        >2<span class="language" data-lan="minute"
+        >4<span class="language" data-lan="minute"
           >分钟</span
         ></span
       >
@@ -541,7 +544,7 @@
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
       <span
-        >354<span class="pc-show language" data-lan="words"
+        >767<span class="pc-show language" data-lan="words"
           >字数</span
         ></span
       >
@@ -551,43 +554,150 @@
 </section>
 
             <div class="post-body next-md-body" id="post_body">
-              <p>记录使用SAS过程中遇到的各种问题</p>
+              <p>写在开头:由于需要爬取网上的一些数据，并且需要请求很多个URL，但requests库是一个同步库，因此采用aiohttp实现异步爬取数据</p>
 <!-- more -->
-<h2 id="总结">总结</h2>
+<h2 id="需求">需求</h2>
+<p>爬取数据并得到想要的结果，并将结果输出为excel文档</p>
+<h2 id="基本情况">基本情况</h2>
+<p>通过浏览器开发者模式查看可以了解到网站是通过API得到json数据包从而渲染到网页，因此不需要使用lxml等解析网页的Python包，只需要通过网页请求得到对应的json数据包即可。</p>
+<p>首先我得到了一个汇总的json(<code>SOC.json</code>)，这个json记录了每个子节点所对应的ID。</p>
+<figure data-type="image" tabindex="1"><img src="https://blog.ticktock.vip/post-images/1649727019424.png" alt="SOC.json" loading="lazy"></figure>
+<p>而获取子节点的json所需要的URL正好需要子节点ID作为参数拼接，子节点json如图所示。</p>
+<figure data-type="image" tabindex="2"><img src="https://blog.ticktock.vip/post-images/1649727073503.png" alt="090a0a10-c969-11e9-98de-acde48001122.json" loading="lazy"></figure>
+<p>子节点json记录了我所需要的所有信息，因此获取所有的子节点json即可。</p>
+<h2 id="编程思路">编程思路</h2>
 <ol>
-<li>put可用于输出变量值，方便调试程序。如:put a=;或put (a) (=)。put a[<em>]=;或put (a[</em>]) (=)可打印数组值</li>
-<li>%put用于宏变量，输出宏变量的值，如:</li>
+<li>
+<p>直接请求URL以获得<code>SOC.json</code>文件</p>
+</li>
+<li>
+<p>读取<code>SOC.json</code>文件获取所有的子节点ID</p>
+</li>
+<li>
+<p>由得到子节点ID拼接为URL，请求得到的URL获取子节点json</p>
+</li>
+<li>
+<p>读取所有json文件并输出到EXCEL文件</p>
+</li>
 </ol>
-<pre><code>%let a=&quot;a&quot;;
-%put &amp;a.;
-output:&quot;a&quot;
-%put &amp;=a.;
-output:A=&quot;a&quot;
+<h2 id="相关代码">相关代码</h2>
+<p>获取json的代码如下，相关网址已省略。</p>
+<p><code>spider.py</code></p>
+<pre><code class="language-python">
+import json,requests,aiohttp,asyncio,os,random
+
+
+SOC_URL = &quot;https://SOC_URL&quot;
+TERM_URL = &quot;https://TERM_URL/&quot;
+
+class Spider(object):
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36 Edg/100.0.1185.29'
+    }
+    loop = asyncio.get_event_loop()
+    
+    # 设定异步延迟(s),防止请求过快获取不到数据
+    delay = {
+        'min': 2,
+        'max': 6
+    }
+    
+    
+    def __init__(self) -&gt; None:
+        pass
+    
+    async def async_requests(self,url):
+        &quot;&quot;&quot;
+        异步请求函数
+        &quot;&quot;&quot;
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(url=url, headers=self.headers) as response:
+                if response.status == 200:
+                    print(response)
+                    asyncio.sleep(random.uniform(self.delay['min'],self.delay['max'])*1000)
+                    term_json = await response.json()
+                    
+                    term_id = term_json['data']['id']
+                    print(term_id)
+                    # 保存json文件
+                    with open('assets/{}.json'.format(term_id),'w+') as f:
+                            f.write(json.dumps(term_json))
+    
+    def getTerm(self):
+        with open('assets/soc.json','r') as f:
+            self.SOC_json = json.load(f)
+        n = 0
+        task = None
+        for SOC in self.SOC_json[&quot;data&quot;]:
+            for Term in SOC['children']:
+                url = TERM_URL + Term['id']
+                n=n+1
+                print('第{}个正在进行...'.format(n))
+                if &quot;{}.json&quot;.format(Term['id']) not in os.listdir('assets'):
+                    task = asyncio.gather(self.async_requests(url))
+        if task:
+            self.loop.run_until_complete(task)
+        self.loop.close()
+    
+    def getSOC(self):
+        response:requests.Response = requests.get(SOC_URL,headers=self.headers)
+        if response.status_code==200:
+            SOC_json = response.json()
+            with open('assets/soc.json','w+') as f:
+                f.write(json.dumps(SOC_json))
+            print(SOC_json)
+            
+    def run(self):
+        self.getSOC()
+        self.getTerm()
+        
+            
+if __name__ == '__main__':
+    spider = Spider()
+    spider.run()
 </code></pre>
-<ol>
-<li>
-<p>SAS系统设置 options</p>
-<ul>
-<li>mprint    打印生成的宏语句</li>
-<li>symbolgen 解析生成的宏变量</li>
-<li>mfile     指定后mprint可打印相应log</li>
-</ul>
-</li>
-<li>
-<p>SAS使用first或last的时候，要注意data步里的筛选语句，否则可能导致错误</p>
-</li>
-<li>
-<p>SAS中<strong>informat</strong>和<strong>format</strong>分别控制<strong>输入时的格式</strong>和<strong>数据展示的值</strong></p>
-<ul>
-<li>例如:proc format; invalue $sex '男'=1 '女'=2;那么采用input转换，或者input输入原始值的时候，'男'或'女'会被替换成1或2。</li>
-<li><strong>特别注意</strong>：若数据集变量已经为'男'或'女'，即使在数据集指定了informat，也不会改变其原始值，因为数据已经存在，而不是输入进去的，不会触发informat格式。</li>
-<li>format则相当于一种key-value映射，不过得区分put(xxx,format)和直接指定format，前者会直接赋值转换后的真实值，后者才是真实的format，即key-value映射。</li>
-</ul>
-</li>
-<li>
-<p>SAS使用正则表达式元字符&quot;<span class='katex-error' title='ParseError: KaTeX parse error: Undefined control sequence: \s at position 23: …匹配不上的情况，需要在前面加上\̲s̲*，即&quot;\s*'>&quot;时，可能遇到匹配不上的情况，需要在前面加上\s*，即&quot;\s*</span>&quot;，才能匹配到结果。</p>
-</li>
-</ol>
+<p>输出excel文件的相关代码</p>
+<p><code>toexcel.py</code></p>
+<pre><code class="language-python">
+import os,json
+import pandas as pd
+
+
+os.listdir('assets')
+df = pd.DataFrame(columns=['MedDRA Code','SOC','TERM','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Definition'])
+
+with open('assets/soc.json','r') as f:
+    soc_json = json.load(f)
+for soc_node in soc_json[&quot;data&quot;]:
+    for term_node in soc_node['children']:
+        term_id = term_node['id']
+        with open('assets/{}.json'.format(term_id),'r') as f:
+            term_json = json.load(f)
+            code = term_json['data']['meddraCode']
+            soc = soc_node['meddraName']
+            term = term_json['data']['meddraName']
+            grade1 = term_json['data']['grade1']
+            grade2 = term_json['data']['grade2']
+            grade3 = term_json['data']['grade3']
+            grade4 = term_json['data']['grade4']
+            grade5 = term_json['data']['grade5']
+            definition = term_json['data']['definition']
+            onedata = {
+                'MedDRA Code':code,
+                'SOC':soc,
+                'TERM':term,
+                'Grade 1':grade1,
+                'Grade 2':grade2,
+                'Grade 3':grade3,
+                'Grade 4':grade4,
+                'Grade 5':grade5,
+                'Definition':definition
+            }
+            df = df.append(onedata,ignore_index=True)
+df.to_excel('CTCAE5.0.xlsx',index=False)
+
+</code></pre>
 
             </div>
             
@@ -600,7 +710,7 @@ output:A=&quot;a&quot;
     </li>
     <li class="post-copyright-link">
       <strong class="language" data-lan="link">本文链接：</strong>
-      <a href="https://blog.ticktock.vip/post/DgT6_5f8r/" title="SAS总结">https://blog.ticktock.vip/post/DgT6_5f8r/</a>
+      <a href="https://blog.ticktock.vip/post/c8xf3OPgV/" title="aiohttp异步爬虫案例">https://blog.ticktock.vip/post/c8xf3OPgV/</a>
     </li>
     <li class="post-copyright-license">
       <strong class="language" data-lan="copyright">版权声明： </strong>
@@ -609,21 +719,17 @@ output:A=&quot;a&quot;
   </ul>
   <div class="tags">
     
-      <a href="https://blog.ticktock.vip/tag/1c244vKsu/"># SAS</a>
+      <a href="https://blog.ticktock.vip/tag/B2Vp3EAZv/"># Python</a>
     
   </div>
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="yay安装失败的解决方案" href="https://blog.ticktock.vip/post/8DXfwMpGg/">yay安装失败的解决方案</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="yay安装失败的解决方案" href="https://blog.ticktock.vip/post/8DXfwMpGg/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="AutoHotKey总结" href="https://blog.ticktock.vip/post/IxYmoBLq0/">AutoHotKey总结</a>
-        <a class="nav-mobile-next" title="AutoHotKey总结" href="https://blog.ticktock.vip/post/IxYmoBLq0/">下一篇</a>
+        <a class="nav-pc-next" title="yay安装失败的解决方案" href="https://blog.ticktock.vip/post/8DXfwMpGg/">yay安装失败的解决方案</a>
+        <a class="nav-mobile-next" title="yay安装失败的解决方案" href="https://blog.ticktock.vip/post/8DXfwMpGg/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
