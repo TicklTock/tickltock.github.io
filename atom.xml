@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.ticktock.vip</id>
     <title>TickTock&apos;Blog</title>
-    <updated>2022-04-12T01:38:41.289Z</updated>
+    <updated>2022-04-13T08:26:00.037Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.ticktock.vip"/>
     <link rel="self" href="https://blog.ticktock.vip/atom.xml"/>
@@ -10,6 +10,127 @@
     <logo>https://blog.ticktock.vip/images/avatar.png</logo>
     <icon>https://blog.ticktock.vip/favicon.ico</icon>
     <rights>All rights reserved 2022, TickTock&apos;Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[基于AHK和SQLite实现的快速查找]]></title>
+        <id>https://blog.ticktock.vip/post/pniE3wyyj/</id>
+        <link href="https://blog.ticktock.vip/post/pniE3wyyj/">
+        </link>
+        <updated>2022-04-13T08:01:39.000Z</updated>
+        <summary type="html"><![CDATA[<p>工作中常常有这样的需求:在SDTM转换过程中，需要查找某个指标得到对应的code，类似于字典结构的key-value之间的关系。而相应的参考文档为excel文件，其中包含7000多条数据，经常需要复制指标然后去excel里进行筛选查找，无论是考虑搜索效率或是自动化实现都略有不足，因此使用AHK和SQLite进行高效快速查找。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>工作中常常有这样的需求:在SDTM转换过程中，需要查找某个指标得到对应的code，类似于字典结构的key-value之间的关系。而相应的参考文档为excel文件，其中包含7000多条数据，经常需要复制指标然后去excel里进行筛选查找，无论是考虑搜索效率或是自动化实现都略有不足，因此使用AHK和SQLite进行高效快速查找。</p>
+<!-- more -->
+<h2 id="思路">思路</h2>
+<ol>
+<li>
+<p>将excel导出为SQLite数据库</p>
+</li>
+<li>
+<p>采用DB Browser for SQLite程序进行查找</p>
+</li>
+<li>
+<p>AHK实现自动化功能</p>
+</li>
+</ol>
+<p>还有一些其他的思路:</p>
+<ul>
+<li>
+<p>查找步骤由程序完成后返回结果，AHK直接复制最准确的结果到剪切板<br>
+缺点:返回结果只有一个，且不一定是想要的那个结果</p>
+</li>
+<li>
+<p>使用类似于代码补全的工具，输入对应的文字返回相应的多条记录<br>
+放弃原因:没找到该类工具，自己实现有难度且浪费时间(输入法的词库功能勉勉强强，只能做好一个大而全的库以后才能有比较好的对应关系)</p>
+</li>
+</ul>
+<h2 id="1-excel导出sqlite数据库">1. Excel导出SQLite数据库</h2>
+<p>这里我使用Python的pandas、sqlalchemy库，来读取Excel并输出SQLite数据库</p>
+<figure data-type="image" tabindex="1"><img src="https://blog.ticktock.vip/post-images/1649837065622.png" alt="Excel文件" loading="lazy"></figure>
+<p>相应的Python代码</p>
+<pre><code class="language-python">
+import os
+import pandas as pd
+from sqlalchemy import create_engine
+
+# 设定工作目录
+os.chdir(os.path.dirname(__file__))
+# 读取1.xls中的Sheet表单
+df = pd.read_excel('1.xls',sheet_name='Sheet')
+# 生成sdtm.db数据库，表名为terminology
+engine = create_engine('sqlite:///sdtm.db')
+df.to_sql('terminology',engine,index=False)
+
+</code></pre>
+<h2 id="2-利用db-browser-for-sqlite查找相应的字段">2. 利用DB Browser for SQLite查找相应的字段</h2>
+<p>DB Browser for SQLite是一款免费开源工具(以下简称<code>SQLite工具</code>)，支持中文，打开后可以在图示位置进行搜索</p>
+<figure data-type="image" tabindex="2"><img src="https://blog.ticktock.vip/post-images/1649837115012.png" alt="DB Browser for SQLite" loading="lazy"></figure>
+<h2 id="3-ahk实现自动化功能">3. AHK实现自动化功能</h2>
+<p>我打算实现选择某段文字，按下快捷键后跳转到<code>SQLite工具</code>得到搜索结果。<br>
+于是我采取以下步骤实现：</p>
+<ol>
+<li>复制选择文字(相当于按下<code>Ctrl+C</code>)</li>
+<li>利用CMD命令打开<code>sdtm.db</code>(需要设置db文件的默认程序为<code>SQLite工具</code>)</li>
+<li>自动化点击浏览数据，并在搜索框输入复制得到的文字</li>
+</ol>
+<p>以下是相关代码:</p>
+<p><code>app.ahk</code></p>
+<pre><code class="language-autohotkey">
+;---------------搜索受控术语--------------------
+;调整窗口大小函数,避免相对坐标发生变化
+ResizeWin(Width = 0,Height = 0)
+{
+WinGetPos,X,Y,W,H,A
+if %Width% = 0
+Width := W
+
+if %Height% = 0
+Height := H
+
+WinMove,A ,,%X%,%Y%,%Width%,%Height%
+}
+
+;搜索函数，包含点击步骤
+Search()
+{
+CoordMode, Mouse, Client
+Click, 123,64
+Click, 536,95
+Send, ^a
+Send, ^v
+Click, 273,495
+Click, 320,170
+}
+
+#s:: ;按下win+S执行搜索
+clipboard:=
+Send, ^{c}
+ClipWait
+;判断软件是否已经打开
+if WinExist(&quot;ahk_exe DB Browser for SQLite.exe&quot;)
+{
+    WinActivate
+    ResizeWin(1000,610)
+    Search()
+}
+if !WinExist(&quot;ahk_exe DB Browser for SQLite.exe&quot;)
+{
+    Run, cmd /c start D:\work\tools\query\sdtm.db
+    ;循环判断软件是否处于前台激活状态
+    while True{
+        if WinActive(&quot;ahk_exe DB Browser for SQLite.exe&quot;){
+            ResizeWin(1000,610)
+            Search()
+            Break
+        }
+    }
+}
+return
+
+;---------------搜索受控术语--------------------
+
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[aiohttp异步爬虫案例]]></title>
         <id>https://blog.ticktock.vip/post/c8xf3OPgV/</id>
